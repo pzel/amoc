@@ -13,7 +13,9 @@
                   ssl,
                   trails,
                   cowboy,
-                  cowboy_swagger
+                  cowboy_swagger,
+                  escalus,
+                  sasl
                  ]},
   {mod, { amoc_app, []}},
   {env, [{repeat_interval, 60000},
