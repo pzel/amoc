@@ -3,6 +3,7 @@
 *.js
 *.log
 *.retry
+.amoc.status
 .eunit
 .rebar
 _rel/
