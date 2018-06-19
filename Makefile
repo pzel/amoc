@@ -1,4 +1,4 @@
-.PHONY: all rel compile clean deploy prepare deps test ct eunit prop
+.PHONY: all build-image rel compile clean deploy prepare deps test ct eunit prop
 
 REBAR = ./rebar3
 APPS_EBIN := $(wildcard _build/default/lib/*/ebin)
@@ -17,6 +17,9 @@ PROP_OPTS = -suite $(PROP_FILES)
 endif
 
 all: rel deploy
+
+build-image:
+	docker build -t pzel/spamdetector-bots .
 
 rel: compile
 	$(REBAR) tar

@@ -13,11 +13,18 @@
 init() ->
     ok.
 
+xmpp_server_dns_hostname() ->
+    EnvVar = "CHAT_SERVER_HOSTNAME",
+    case os:getenv(EnvVar) of
+        V when is_list(V) -> list_to_binary(V);
+        _ -> error(EnvVar ++ " not set")
+    end.
+
 -spec user_spec(binary(), binary(), binary()) -> escalus_users:user_spec().
 user_spec(ProfileId, XMPPToken, Res) ->
     [ {username, ProfileId},
       {server, ?HOST},
-      {host, <<"127.0.0.1">>},
+      {host, xmpp_server_dns_hostname()},
       {password, XMPPToken},
       {carbons, false},
       {stream_management, false},
@@ -65,7 +72,7 @@ make_behavior_model(Id) ->
     end.
 
 chat_loop(Id, Client, Behavior) ->
-    timer:sleep(floor(500 + (rand:uniform()*500))),
+    timer:sleep(erlang:floor(500 + (rand:uniform()*500))),
     maybe_initiate_convo(Id, Client, Behavior),
     maybe_reply(Id, Client, Behavior),
     chat_loop(Id, Client, Behavior).
@@ -73,15 +80,15 @@ chat_loop(Id, Client, Behavior) ->
 get_phrase(infinity) ->
     hd(random_phrases(1));
 get_phrase(Phrases) when is_list(Phrases) ->
-    lists:nth(ceil(rand:uniform(length(Phrases))), Phrases).
+    lists:nth(erlang:ceil(rand:uniform(length(Phrases))), Phrases).
 
 nearby_id(Id) when is_number(Id) ->
-    Id + abs(floor(rand:uniform(Id*2))).
+    Id + abs(erlang:floor(rand:uniform(Id*2))).
 
 maybe_initiate_convo(Id, Client, #{phrases := P, chattiness := CH} = B) ->
     case (rand:uniform() < CH) of
         true ->
-            %% lager:info("~p Initiating convo ~p", [Id, C]),
+            lager:info("~p Initiating convo ~p", [Id, CH]),
             Phrase = get_phrase(P),
             TargetId = nearby_id(Id),
             send_message(Client, TargetId, Phrase, B),
@@ -94,6 +101,7 @@ maybe_reply(Id, Client, #{reply_rate := R} = Behavior) ->
     WillReply = rand:uniform() < R,
     receive
         {stanza, _Pid, Stanza} ->
+            lager:info("got stanza"),
             if WillReply -> reply(Client, Behavior, Stanza);
                (not WillReply) -> ok
             end,
