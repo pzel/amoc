@@ -15,7 +15,7 @@ RUN apt-get update && \
                        zlib1g-dev \
                        locales \
                        unixodbc-dev \
-                       esl-erlang=1:19.3.6 &&\
+                       esl-erlang=1:20.3 &&\
      locale-gen en_US.UTF-8 &&\
     git clone https://github.com/pzel/amoc --depth=1 amoc.git &&\
     (cd amoc.git && make compile)
